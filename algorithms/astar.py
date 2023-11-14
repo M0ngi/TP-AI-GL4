@@ -7,13 +7,13 @@ import time
 class AStar(BaseAlgorithm): 
     __NAME__ = "A* Search"
 
-    def __init__(self, taquin: Taquin):
-        self.goal = taquin.get_solution()
+    def __init__(self, taquin: Taquin, quiz_cost: bool = False):
+        self.goal = taquin._goal
+        self.quiz_cost = quiz_cost
         
         taquin.f = 0
         taquin.g = 0
-        taquin.h = 0
-        taquin.cost = self.get_cost(taquin)
+        taquin.h = self.get_cost(taquin)
         
         self.taquin: Taquin = taquin
         
@@ -50,7 +50,7 @@ class AStar(BaseAlgorithm):
                     continue
                 
                 child.g = current.g + 1
-                child.h = child.cost # self.get_cost(child)
+                child.h = child.h if self.quiz_cost else self.get_cost(child)
                 child.f = child.g + child.h
                 child.parent = current
                 if len([open_node for open_node in self.open if child == open_node and child.g > open_node.g]) > 0:
@@ -76,20 +76,16 @@ class AStar(BaseAlgorithm):
         correct_x, correct_y = tile_value//board_size, tile_value % board_size
         
         diff = 0
-        dbg = [0,0,0,0]
         if prev_T0_x == prev_T0_y == 0:
             # Was correct, now it's wrong
             diff += 1
-            dbg[0] = 1
         
         if next_T0_x == next_T0_y == 0:
             # Was wrong, now it's correct
-            dbg[1] = -1
             diff -= 1
         
         if correct_x == prev_T0_x and correct_y == prev_T0_y:
             # Now it's correct, 100% it was wrong
-            dbg[2] = -1
             diff -= 1
         else:
             # Now, it's wrong
@@ -98,4 +94,4 @@ class AStar(BaseAlgorithm):
                 diff += 1
             # If it was wrong, nothing changes
         
-        next.cost = prev.cost + diff
+        next.h = prev.h + diff

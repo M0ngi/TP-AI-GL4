@@ -28,11 +28,7 @@ class Taquin:
         return result
 
     def get_solution(self):
-        sol = []
-        for i in range(0, self.size):
-            row = [i * self.size + j for j in range(0, self.size)]
-            sol.append(row)
-        return sol
+        return board_solution(self.size)
 
     def is_valid_square(self, tile):
         return tile[0] >= 0 and tile[0] < self.size and tile[1] >= 0 and tile[1] < self.size
@@ -66,28 +62,22 @@ class Taquin:
         self._state = [row[:] for row in newstate]
 
     def shuffle_board(self, nShuffle=0):
-        moves = [
-            [0, 1],
-            [0, -1],
-            [1, 0],
-            [-1, 0]
-        ]
         random.seed(time.time())
         path = []
         path.append(self.get_state())
         prevMove = None
         for _ in range(nShuffle):
-            mymove = random.choice(moves)
+            mymove = random.choice(Taquin.validDirections)
             while mymove == prevMove:
-                mymove = random.choice(moves)
+                mymove = random.choice(Taquin.validDirections)
             prevMove = mymove
 
             newboard = self.move(mymove)
             if newboard is None:
                 continue
-            maxState = newboard
-            if maxState is not None:
-                self.set_state(maxState.get_state())
+            
+            if newboard is not None:
+                self.set_state(newboard.get_state())
                 path.append(self.get_state())
         return path
 
@@ -117,10 +107,6 @@ class Taquin:
         return self.f > other.f
 
 def board_solution(size):
-    sol = []
-    for i in range(0, size):
-        row = []
-        for j in range(0, size):
-            row.append(i * size + j)
-        sol.append(row)
-    return sol
+    return [
+        [i * size + j for j in range(0, size)] for i in range(0, size)
+    ]

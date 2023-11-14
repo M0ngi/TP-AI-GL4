@@ -1,5 +1,6 @@
 from algorithms import AStar, Dfs, IterativeDfs
 from taquin import Taquin
+import time
 
 
 algorithmMap = {
@@ -12,6 +13,7 @@ def main():
     global algorithmMap
 
     size = int(input('Board Size: '))
+    timeout = int(input('Timeout in seconds: '))
 
     taquin = Taquin(size)
     taquin.shuffle_board(100)
@@ -21,13 +23,22 @@ def main():
 
     idx = int(input('>>> '))
 
-    solver = algorithmMap[idx](taquin)
+    solver = algorithmMap[idx](taquin, True)
 
     print(taquin)
-
-    path = solver.solve()
+    print("Started")
+    start = time.time()
+    path = solver.solve(timeout)
+    duration = time.time() - start
+    
+    if path is None:
+        path = []
+        print("Could not solve board")
+    
     for p in path:
         print(p)
+    
+    print(f"Solved in {duration} seconds.")
 
 if __name__ == "__main__":
     main()
